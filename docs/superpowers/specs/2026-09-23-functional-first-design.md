@@ -278,9 +278,11 @@ functimize/                          local repo directory; plugin name is functi
 ├── docs/adr/                        decisions
 └── skills/functional-first/
     ├── SKILL.md                     contract, greenfield gate, stance resolution,
-    │                                option sets, deviation rules, review signals
+    │                                deviation rules
     ├── snippets/claude-md.md        the installable always-on block
     └── references/
+        ├── ecosystem.json           option sets, last-verified dates, build markers
+        ├── review-signals.md        the six failure signals
         ├── scala-3.md  scala-2.md
         ├── java.md     python.md
         └── kotlin.md   typescript.md   go.md

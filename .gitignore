@@ -1,0 +1,8 @@
+# Rendered review interfaces — build artifacts of spec-review-html
+*.review.html
+
+# Local, per-machine Claude Code settings
+.claude/settings.local.json
+
+# macOS
+.DS_Store

@@ -1,0 +1,253 @@
+{
+  "title": "Functional-First Design Guideline — Design Spec",
+  "one_liner": "A team-neutral, cross-language guideline that holds functional structure non-negotiable and asks each team which machinery carries its effects.",
+  "will_do": [
+    "Ship the functional-first skill as the functional-first plugin, adoptable by any team without per-person tuning.",
+    "Hold Axis A — six structural principles — at full rigor in every language, with no configurable strength.",
+    "Resolve Axis B by asking the user once per greenfield project and recording the answer in the project's CLAUDE.md.",
+    "Follow an existing codebase's effect machinery in brownfield projects without asking at all.",
+    "Ship fact-only language references carrying capability and idiom, starting with Scala 3, then Java, then Python.",
+    "Carry version-aware idioms, including the Java 8 / 17 / 21 tiers and separate files for Scala 2 and Scala 3.",
+    "Provide a review mode built on six mechanically observable failure signals.",
+    "Refresh each language's option set by live search immediately before asking, so shipped ecosystem facts are a floor rather than a source of staleness.",
+    "Ship the always-on block as an installable snippet for either a personal or a team CLAUDE.md, carrying the six principles in full so they hold even when the skill never loads."
+  ],
+  "wont_do": [
+    "Name a preferred effect library anywhere in the guideline.",
+    "Offer a non-functional option on any menu, or any way to dial Axis A down.",
+    "Write the Kotlin, TypeScript, or Go references in this pass.",
+    "Build lint rules or CI enforcement from the failure signals.",
+    "Ship the PreToolUse hook in the first release — deferred, not rejected.",
+    "Provide migration guidance for converting an existing OO codebase.",
+    "Infer a project's age from its language version."
+  ],
+  "cards": [
+    {
+      "id": 1,
+      "title": "Axis A is not configurable",
+      "choice": "SKILL.md opens with a contract: adopting the skill means accepting Axis A, and only Axis B is negotiable. A team that wants out removes the skill.",
+      "alternatives": [
+        "Let teams dial Axis A down per project",
+        "Ship Axis A as advice, with no contract language"
+      ],
+      "why": "A guideline that can be talked out of its own premise stops being a guideline. Every configurable knob is a place where the model will negotiate the point away.",
+      "impact": ["§1", "skills/functional-first/SKILL.md"],
+      "risk": "Teams wanting partial adoption have no supported path — it is all or nothing, and some will bounce off entirely rather than adopt a subset.",
+      "flags": [],
+      "anchor": "1."
+    },
+    {
+      "id": 2,
+      "title": "Split rigor from abstraction weight",
+      "choice": "Axis A (principle rigor, costs no dependency) and Axis B (abstraction weight, costs a learning curve) are separate concepts. Axis A is always full; only Axis B varies.",
+      "alternatives": [
+        "A single 'how functional' dial per language",
+        "Per-language rule sets each carrying their own strength"
+      ],
+      "why": "One dial conflates 'use records and pure functions' with 'adopt an effect system'. That conflation produces both blanket rejection and cargo-cult adoption, and it was visible in this project's own early framing before the split was made.",
+      "impact": ["§2", "§3", "§4", "CONTEXT.md"],
+      "risk": "Two axes is more to hold in mind than one dial; if a reader collapses them back together, every downstream rule reads wrong.",
+      "flags": [],
+      "anchor": "2."
+    },
+    {
+      "id": 3,
+      "title": "Six principles, with style rules excluded by name",
+      "choice": "Axis A is exactly six structural principles. 'Prefer map/filter/reduce', point-free style, and composition-over-inheritance are explicitly excluded.",
+      "alternatives": [
+        "A longer list including idiom and style preferences",
+        "A slogan-level list of three"
+      ],
+      "why": "Structural rules change architecture; style rules do not. Admitting style items is the documented failure mode that turns guidelines like this into checklists nobody applies.",
+      "impact": ["§3", "§7"],
+      "risk": "Principle 2 (decide/execute) reads as redundant beside principle 1 and may be dropped by a reader who does not see why it is separate — losing the only thing that makes mock-free tests possible.",
+      "flags": [],
+      "anchor": "3."
+    },
+    {
+      "id": 4,
+      "title": "Greenfield is decided by code presence alone",
+      "choice": "SKILL.md's first action classifies greenfield versus brownfield, and the test is solely whether existing source code is present. It is never inferred from language version.",
+      "alternatives": [
+        "Infer from language version — an old version implies legacy",
+        "Ask the user to classify",
+        "Treat every project the same"
+      ],
+      "why": "Four of five downstream decisions branch on this classification. Inferring it from version is wrong in both directions: new projects adopt Scala 2 for Spark cross-publishing reasons, and old projects run on new runtimes.",
+      "impact": ["§4.1", "§5", "§6.2"],
+      "risk": "A repo holding only scaffolding or one generated file reads as brownfield and suppresses the stance question a genuinely new project should have been asked.",
+      "flags": [
+        "RESOLVED — 'module' is now removed rather than defined. Brownfield scope is the changeset: every new file and every function actually modified. Build units and package boundaries were both considered and rejected as absent or meaningless in a flat Python package or a single-artifact Maven build, whereas the set of changed functions is always defined."
+      ],
+      "anchor": "4.1"
+    },
+    {
+      "id": 5,
+      "title": "Ask the user rather than carry a default",
+      "choice": "Resolution order is: a brownfield codebase signal wins and never asks; a recorded Stance is reused; otherwise ask once and record the answer.",
+      "alternatives": [
+        "A hardcoded stance per language",
+        "A full decision procedure re-run every time",
+        "Constants as default, with a mechanical override"
+      ],
+      "why": "A default is a house favourite, and a guideline built for teams with opposite tastes cannot hold one. The third alternative was this design's working position for most of the discussion, until the team-neutral scope made it untenable.",
+      "impact": ["§4.2", "docs/adr/0001-stance-resolution.md"],
+      "risk": "Every greenfield Scala project costs the user an interruption at design time, and a user who answers carelessly pins a stance for the life of the project.",
+      "flags": [
+        "RESOLVED — a curated list cannot stay current, so it is reframed as a fast path rather than a closed set, and the failure mode is made benign: an unrecognised FP-looking dependency falls through to asking, never to `native`. A stale list therefore costs one question and can never produce a wrong answer."
+      ],
+      "anchor": "4.2"
+    },
+    {
+      "id": 6,
+      "title": "Per-language option sets replace an aggressiveness level",
+      "choice": "Each language holds a set of Axis-A-compliant machinery; size 1 proceeds silently, size greater than 1 asks. The shipped set is a floor carrying a last-verified date, refreshed by live search immediately before the question is asked. `native` is spelled out as a definite architecture, not an absence.",
+      "alternatives": [
+        "Keep the High/Medium/Low level and ask when it reaches Medium",
+        "Rank the options and pick the top one automatically",
+        "Ship a fixed set and accept that it goes stale"
+      ],
+      "why": "A level requires the model to judge a threshold; set cardinality is a fact, so the ask rule collapses to one line. Refreshing by search is affordable only because asking is already rare — once per greenfield project, never for single-member sets — which is what makes a live lookup viable here and not elsewhere.",
+      "impact": ["§4.3", "§4.3.1", "docs/adr/0001-stance-resolution.md"],
+      "risk": "Search introduces non-determinism into a decision that then persists for the project's life, and a refresh that misreads a niche library as mainstream can manufacture a question where no real alternative exists.",
+      "flags": [
+        "RESOLVED (Java/Python) — `native` now states what it actually is: ordinary shell code calling the database, a pure core over records or frozen dataclasses, and failure in a hand-written Result or the language's own sum type, with no effect runtime. The ecosystem claims behind `{ native }` are exactly what the refresh re-checks; if a Java effect library gains traction, the refresh turns `{ native }` into a question that did not previously exist.",
+        "RESOLVED (Scala 2) — the set was wrong and is corrected to `{ ZIO 2, cats-effect 3, direct style }`, the same members as Scala 3: both libraries cross-publish to 2.12 and 2.13. 'cats core' is dropped as it is not an effect runtime, and direct style on Scala 2 is noted as plain code plus discipline since Ox requires Scala 3. These version claims are themselves subject to the refresh."
+      ],
+      "anchor": "4.3"
+    },
+    {
+      "id": 7,
+      "title": "Every option offered satisfies Axis A",
+      "choice": "The question put to a team is always which machinery carries the effects, never whether to be functional. Direct style sits on the Scala menu; 'not functional' never appears on any menu.",
+      "alternatives": [
+        "Ask whether to adopt an effect system at all",
+        "Never ask about Axis B level, only about library identity"
+      ],
+      "why": "Asking 'do you want an effect system' smuggles the largest decision past the team as a yes/no. Yet treating a declined effect system as declining functional design would make Java and Python non-functional by construction, contradicting §3.",
+      "impact": ["§4.4", "§1"],
+      "risk": "Direct style is the least established of the three Scala options; presenting it as an equal makes it easy to choose without appreciating that Axis A then rests on discipline rather than on the type system.",
+      "flags": [],
+      "anchor": "4.4"
+    },
+    {
+      "id": 8,
+      "title": "Record the Stance in the project's CLAUDE.md",
+      "choice": "Three lines in the project CLAUDE.md — axis, choice, and a dated reason — rather than a dedicated configuration file.",
+      "alternatives": [
+        "A dedicated .functional-first.toml",
+        "Record nothing and re-ask each session"
+      ],
+      "why": "CLAUDE.md is already the recognised home for project rules and is loaded for free. A new file format would need the model taught to read it and would be invisible to humans browsing the repo.",
+      "impact": ["§4.5", "§9"],
+      "risk": "Free text in Markdown is not machine-validated, so a malformed or self-contradictory entry fails silently and the model falls back to asking or guessing.",
+      "flags": [],
+      "anchor": "4.5"
+    },
+    {
+      "id": 9,
+      "title": "Three-item deviation whitelist, limited to contagious changes",
+      "choice": "Deviations are limited to measured hot paths, framework grain, and existing-codebase consistency. The consistency item is brownfield-only and protects only Contagious Changes. Substitution is never Deviation.",
+      "alternatives": [
+        "Open-ended 'deviate when it makes sense'",
+        "No deviations permitted at all",
+        "Let consistency cover any change"
+      ],
+      "why": "An unbounded escape hatch makes the guideline advisory in practice. The contagious-change limiter is what stops 'the codebase is OO' from blocking a record, and the substitution rule is what stops Go and Python becoming permanent exemption zones.",
+      "impact": ["§5", "§4.1"],
+      "risk": "'Measured hot path' requires profiling data many teams will not have, so it becomes either a dead rule or an unverified claim nobody checks.",
+      "flags": [],
+      "anchor": "5."
+    },
+    {
+      "id": 10,
+      "title": "References carry capability and idiom, never stance",
+      "choice": "references/<lang>.md describes what the language and its ecosystem can do and what idiomatic code looks like — including how ZIO code is written. Which to use lives only in SKILL.md.",
+      "alternatives": [
+        "References state a recommended library per language",
+        "Fold stance and reference into one file"
+      ],
+      "why": "Ecosystem shifts then touch SKILL.md only, and language releases touch one reference only. It also removes the room in which Haskell vocabulary gets imported into Python.",
+      "impact": ["§6.1", "§8"],
+      "risk": "The fact/stance line is not self-enforcing; a future edit adding 'prefer X' to a reference will look harmless while quietly duplicating stance in two places.",
+      "flags": [],
+      "anchor": "6.1"
+    },
+    {
+      "id": 11,
+      "title": "Version markers inline, except Scala which splits by file",
+      "choice": "Each idiom carries a minimum-version marker inside a single per-language file. Scala alone splits into scala-2.md and scala-3.md.",
+      "alternatives": [
+        "A file per version for every language",
+        "Ignore versions and target the latest",
+        "Split Java by tier as well"
+      ],
+      "why": "The test is increment versus rewrite. Java 8 to 21 is an increment — old forms stay legal, newer ones are better. Scala 2 to 3 is a rewrite, and forcing both into one file explains neither well.",
+      "impact": ["§6.2", "§6.3", "§6.5"],
+      "risk": "Per-idiom markers are easy to forget when editing, and a missing marker reads as 'available everywhere' — producing code that will not compile against the project's actual target.",
+      "flags": [],
+      "anchor": "6.2"
+    },
+    {
+      "id": 12,
+      "title": "A strict type checker is a precondition for principle 4 in Python",
+      "choice": "Without mypy or pyright in strict mode plus assert_never, the reference states plainly that principle 4 carries documentation value only in that project, and degrades accordingly.",
+      "alternatives": [
+        "Apply principle 4 regardless and stay quiet about enforcement",
+        "Drop principle 4 for Python entirely"
+      ],
+      "why": "Unlike Java 8, which at least has the visitor pattern, Python has no built-in construction that turns a missing case into an error. Rigorous-looking Union and Literal models with zero enforcement mislead readers into believing they are protected.",
+      "impact": ["§6.4", "§7"],
+      "risk": "Projects without a strict checker get a visibly weaker guarantee, which may read as the guideline failing in Python rather than as an accurate report of what Python enforces.",
+      "flags": [],
+      "anchor": "6.4"
+    },
+    {
+      "id": 13,
+      "title": "Review runs on mechanical signals, not questions",
+      "choice": "Six observable signals — an import, a type in a signature, a call in a body — one per principle, no subjective review questions. Signal 4 is scoped: a `default` branch violates only over a sealed hierarchy on Java 21+.",
+      "alternatives": [
+        "A checklist of review questions",
+        "No review mode at all"
+      ],
+      "why": "'Is this function pure enough' cannot be checked or automated. 'A Repository type appears in a decision function's parameters' can be grepped, and leaves the door open to lint rules later.",
+      "impact": ["§7", "§10"],
+      "risk": "Mechanical signals over-fire and under-fire by nature; a reviewer treating a signal as a verdict rather than a prompt will flag legitimate code.",
+      "flags": [
+        "RESOLVED — signal 4 now fires only when the selector is a sealed hierarchy AND the Effective Language Level is 21 or above, where a `default` branch discards the exhaustiveness check that sealing exists to provide. On 16/17 it remains the prescribed idiom, and over a non-sealed selector it is ordinary correct code at any version."
+      ],
+      "anchor": "7."
+    },
+    {
+      "id": 14,
+      "title": "Four triggering layers, with the CLAUDE.md block as the only guarantee",
+      "choice": "The CLAUDE.md block carries Axis A itself rather than a pointer, so the principles hold even when the skill never loads. Above it sit three probabilistic layers: chaining off brainstorming and writing-plans, a situationally-worded description, and a deferred PreToolUse hook. SKILL.md still loads at design, library selection, and review; references/<lang>.md only while implementing.",
+      "alternatives": [
+        "Rely on the skill description alone and keep the block optional",
+        "Put only a pointer in the block and keep all content in the skill",
+        "Ship the PreToolUse hook now as the primary mechanism"
+      ],
+      "why": "Nobody asks for a functional order service — they ask for an order service, so no mechanism keyed to the topic being raised can fire reliably. Only context that is already loaded fires unconditionally, which makes the block the guarantee and the skill the depth. Layers 2 and 3 borrow triggers that already work rather than engineering new ones.",
+      "impact": ["§8", "§9.1", "§10"],
+      "risk": "The block spends always-on context in every session for every project, functional or not, and its six lines must stay compressed enough to be affordable while remaining specific enough to change behaviour — a balance that degrades quietly if the block is ever expanded.",
+      "flags": [
+        "RESOLVED — the previous revision had this backwards, treating the description as the primary trigger and demoting the block to optional reinforcement. Triggering on a subject the user never raises cannot be probabilistic at its base layer, so the block is re-promoted to carry Axis A outright, with §9.1 stating plainly that only in-context material fires every time and the remaining layers merely raise probability."
+      ],
+      "anchor": "8."
+    },
+    {
+      "id": 15,
+      "title": "Ship as a plugin under one published name",
+      "choice": "Plugin packaging for team installability. Plugin and skill are both functional-first, invoked as functional-first:functional-first; only the local repo directory keeps the name functimize.",
+      "alternatives": [
+        "Keep functimize as the plugin namespace, giving functimize:functional-first",
+        "Ship a bare skill directory with symlink instructions"
+      ],
+      "why": "One published name is easier to remember and refer to than a brand namespace plus a separate skill name. The stutter at invocation is cosmetic, and functimize survives where it is visible to nobody but its owner.",
+      "impact": ["§9"],
+      "risk": "The namespace is spent on this one skill, so a sibling skill added later either lands under a name describing only its neighbour, or forces a rename that breaks existing invocations.",
+      "flags": [],
+      "anchor": "9."
+    }
+  ]
+}

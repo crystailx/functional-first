@@ -1,0 +1,388 @@
+# Functional-First Design Guideline — Design
+
+**Status:** proposed
+**Date:** 2026-09-23
+**Artifact:** the `functional-first` plugin, shipping the `functional-first` skill
+
+## 1. Purpose and contract
+
+A cross-language guideline that biases architecture, implementation planning, implementation,
+and library selection toward functional design. It is built to be adopted by any team, not
+tuned to one person's taste.
+
+The contract is explicit and belongs at the top of `SKILL.md`:
+
+> Adopting this skill means accepting Axis A. Only Axis B is negotiable, and only among
+> options that already satisfy Axis A. If a team does not want functional design, the correct
+> action is to remove the skill — not to configure it away.
+
+This matters because a guideline that can be talked out of its own premise is decoration. The
+only thing a project chooses is which machinery carries its effects.
+
+## 2. Vocabulary
+
+Defined in [`CONTEXT.md`](../../../CONTEXT.md): Axis A, Axis B, Deviation, Substitution,
+Effective Language Level, Stance, Taste Fork, Contagious Change, Failure Signal.
+
+The single load-bearing distinction: **Axis A is not Axis B.** Axis A is structure and costs
+no dependency. Axis B is abstraction weight and costs a learning curve. Conflating them is
+what makes guidelines like this one fail — it produces either blanket rejection ("we don't
+want monads") or blanket adoption ("everything must be an effect").
+
+## 3. Axis A — the six principles
+
+Applied at full rigor in every language. Never discounted for language capability; where a
+language lacks a construct, the reference supplies a Substitution and rigor is unchanged.
+
+1. **Functional core, imperative shell.** I/O, database, clock, and network live at the
+   outermost layer. Decision logic is pure.
+2. **Separate decide from execute.** The core returns a description of what should happen —
+   a command, an event, a plan — and the shell performs it. This is the operational form of
+   principle 1; without it people write a "pure core" that calls a repository. It is also the
+   only source of tests that need no mocks.
+3. **Immutable by default.** Transformations return new values. Mutation is permitted only
+   when confined inside a single function, leaving it pure from the outside.
+4. **Make the type system work.** Illegal states are unrepresentable, and legal states are
+   handled exhaustively. Parse, don't validate: the boundary parses input once into a
+   validated type, and nothing downstream re-checks it.
+5. **Errors are values.** Expected failure travels in the return type. Exceptions are reserved
+   for genuine bugs and unrecoverable conditions.
+6. **Dependencies are explicit.** Passed as arguments — including clock, randomness, ID
+   generation, and environment. No ambient singletons, no global mutable state, no DI
+   container magic.
+
+**Deliberately excluded:** "prefer map/filter/reduce", point-free style, "composition over
+inheritance". The first two are consequences of the six above rather than causes, and the
+third is OO self-correction rather than a functional claim. Admitting them degrades the
+guideline into a style checklist, which is the most common failure mode for documents of this
+kind.
+
+## 4. Axis B — stance resolution
+
+### 4.1 The greenfield gate
+
+`SKILL.md`'s first action is to classify the project. The test is solely **whether existing
+source code is present**. It is never inferred from language version: new projects adopt old
+language versions for real reasons (Spark's Scala cross-publishing being the common one), and
+old projects run on new runtimes.
+
+**Scope is defined by the changeset, not by a structural unit.** Axis A binds every new file
+and every function actually modified; code merely read or called carries no obligation. This
+deliberately avoids defining "module" at all. Build units and package boundaries are either
+absent or meaningless in most repos — a flat Python package, a single-artifact Maven build —
+whereas the set of functions being changed is always defined, in every language and every
+layout.
+
+Four of five downstream decisions branch on this classification, which is why it is
+first-class rather than a footnote:
+
+| Decision | Branches? |
+|---|---|
+| Axis A rigor | No — always full |
+| Axis A scope of work | Yes — in brownfield, Axis A binds new files and modified functions only; never a global rewrite |
+| Axis B stance | Yes |
+| Existing-codebase Deviation | Yes — brownfield only |
+| Framework grain | Yes — a selection criterion in greenfield, a fait accompli in brownfield |
+
+### 4.2 Resolution order
+
+```
+brownfield with a codebase signal  → follow what is there. Never ask.
+                                     (switching effect systems is a Contagious Change)
+project has a recorded Stance      → use it. Never re-ask.
+otherwise                          → ask the user, then record the answer
+```
+
+A codebase signal is read mechanically: the build file (`build.sbt`, `pom.xml`, `build.gradle`,
+`pyproject.toml`) naming an effect library, or that library's types appearing broadly in source.
+
+The recognised names are a **fast path, not a closed set**, and the failure mode is
+deliberately benign. An unrecognised dependency that looks like effect or FP machinery falls
+through to asking — which costs one question and cannot produce a wrong answer. A list going
+stale therefore never silently degrades a project to `native`; the worst it does is ask
+something it could have inferred.
+
+### 4.3 The option set
+
+Per language, the guideline holds the set of **Axis-A-compliant machinery** available. It
+holds no ranking and names no favourite.
+
+`native` is a definite architecture, not an absence. The shell is ordinary code that calls the
+database; the core is pure functions over records or frozen dataclasses; expected failure
+travels in a hand-written `Result` or the language's own sum type. There is simply no effect
+runtime in the picture.
+
+| Language | Shipped option set | Behaviour |
+|---|---|---|
+| Java | `{ native }` | size 1 → never asks |
+| Python | `{ native }` | size 1 → never asks |
+| Scala 3 | `{ ZIO 2, cats-effect 3, direct style }` | size > 1 → asks once |
+| Scala 2 | `{ ZIO 2, cats-effect 3, direct style }` | size > 1 → asks once |
+
+The rule is one line: **set size > 1 → ask; size = 1 → proceed.** No "aggressiveness level"
+threshold for a model to misjudge.
+
+Scala 2 and Scala 3 carry the same members with different notes: ZIO 2 and cats-effect 3 both
+cross-publish to 2.12 and 2.13, while direct style on Scala 2 means plain code plus discipline
+because Ox requires Scala 3.
+
+### 4.3.1 The set is a floor, refreshed by search
+
+Ecosystem facts are the fastest-moving content in this guideline, and a set baked in at
+authoring time will be wrong within a year. So each set carries a `last-verified` date and is
+**refreshed by a live search immediately before the question is put to the user**.
+
+This is affordable precisely because asking is rare — once per greenfield project, and never
+at all for single-member sets. The shipped set is the floor: a refresh may add an option or
+mark one as declining, but it may never yield an empty menu, and every option it adds must
+satisfy Axis A.
+
+Java and Python hold `{ native }` because there is nothing worth betting on rather than out of
+conservatism: Java's FP library ecosystem is thin while Loom makes direct style viable, and in
+Python a hand-written `Result` of roughly twenty lines reads better than a niche dependency.
+Both reach full Axis A natively. These are exactly the claims the refresh exists to re-check —
+if a Java effect library gains real traction, the refresh is what turns `{ native }` into a
+question that did not previously exist.
+
+### 4.4 Asking well
+
+When the guideline asks, the question is *which machinery carries the effects*, never *whether
+to be functional*. Every option presented satisfies Axis A — including direct style, which
+keeps ADTs, immutability, errors-as-values, and a pure core while declining an effect monad.
+
+The question must present trade-offs rather than names, so a team can actually decide, and it
+fires at architecture-design time — never mid-implementation.
+
+### 4.5 Recording the stance
+
+Written into the **project's `CLAUDE.md`**, chosen over a dedicated config file because it is
+already the recognised home for project rules and is loaded for free:
+
+```markdown
+## functional-first
+- Axis B: cats-effect 3
+- Decided: 2026-09-23 — team already ships cats/http4s services
+```
+
+The reason line is not decoration. Six months later it determines whether someone revisiting
+the choice is deciding or guessing.
+
+## 5. Deviation
+
+Applying a principle below full rigor on Axis A. Permitted only against this whitelist, and
+the deviation must be stated out loud when it happens.
+
+| Deviation | Greenfield | Brownfield |
+|---|:-:|:-:|
+| Measured hot path — profiling data exists, mutation confined inside the function | yes | yes |
+| Framework grain — the ORM demands mutable entities | see below | yes |
+| Existing-codebase consistency | no | yes |
+
+**Framework grain is a selection criterion in greenfield, not an excuse.** Choosing Spring
+plus JPA signs up for the mutable-entity tax; the grain was chosen, so it cannot later be
+pleaded. Greenfield work should weigh grain compatibility when picking frameworks. In
+brownfield the grain is a genuine fait accompli — the response is to keep framework types out
+of the core rather than to fight the framework.
+
+**Existing-codebase consistency protects only Contagious Changes.** Adopting an effect library
+is contagious: everyone who touches it must learn it. Adding a `record` or a `sealed interface`
+is not — it is just a class, and no one else has to change anything. So any native construct
+the build target supports is used regardless of surrounding style.
+
+**Substitution is not Deviation.** "This language has no sum type" is not a licence to relax;
+the reference supplies the substitute form and rigor is unchanged. Without this rule Go and
+Python become permanent exemption zones.
+
+## 6. Language references
+
+### 6.1 Facts only
+
+`references/<lang>.md` describes **capability and idiom** — what the language and its
+ecosystem can do, and what the idiomatic form looks like. This includes ecosystem capability:
+describing how ZIO code is written is a fact. What a reference never contains is a stance:
+*which* to use lives in `SKILL.md`.
+
+The payoff is maintenance. Ecosystem shifts touch `SKILL.md` only; language releases touch one
+reference only. It also directly prevents the cargo-cult failure mode, because each reference
+states the idiomatic form outright and leaves no room to import Haskell vocabulary into Python.
+
+### 6.2 Version axis
+
+Every idiom carries a minimum-version marker. This is general, not a Java special case —
+Python has one (3.10 `match`, 3.12 type syntax) and Scala's is the largest of all.
+
+**One file per language, except Scala.** The test is whether the version difference is an
+increment or a rewrite. Java 8 → 21 is an increment: old forms remain legal, newer ones are
+better. Scala 2 → 3 is a rewrite: `enum` and `given` are new syntax and implicits are the old
+world. Hence `scala-2.md` and `scala-3.md` as separate files, everything else versioned inline.
+
+Effective Language Level is read from the build target (`maven.compiler.release`,
+`sourceCompatibility`) plus source evidence — never from the runtime. A project may compile at
+21 and be written entirely in Java 8 style.
+
+### 6.3 Java tiers
+
+| Effective level | record | sealed | switch patterns + exhaustiveness | How principle 4 lands |
+|---|:-:|:-:|:-:|---|
+| 8 / 11 | no | no | no | Immutability via Immutables / AutoValue / Lombok `@Value`. The **visitor pattern** is the only construction with compiler-checked exhaustiveness — add a case and every implementor fails to compile. |
+| 16 / 17 | yes | yes | no | `record` + `sealed interface` express the ADT; matching is an `instanceof` chain with `default -> throw`, exhaustiveness unchecked. |
+| 21+ | yes | yes | yes | `switch` patterns and record patterns, exhaustiveness checked by the compiler. |
+
+The Java 8 row is the one most often skipped. The visitor pattern is ugly, but without it a
+Java 8 project has no mechanical hold on principle 4 at all.
+
+### 6.4 Python
+
+A strict type checker (mypy or pyright, strict mode, with `assert_never`) is a **precondition**
+for principle 4 in Python. Unlike Java 8 — which at least has the visitor pattern — Python has
+no built-in substitute that produces a compile-time error.
+
+Where a project has no strict checker, the reference says plainly that principle 4 carries
+documentation value only in that project, and degrades accordingly. Silence here is worse than
+absence: it produces rigorous-looking `Union` + `Literal` models with zero enforcement, which
+misleads readers into believing they are protected.
+
+### 6.5 Order of work
+
+`scala-3.md` → `java.md` → `python.md`, then `scala-2.md`, `kotlin.md`, `typescript.md`,
+`go.md`. References are created lazily; writing one on demand beats writing it early and
+letting it rot.
+
+## 7. Review — failure signals
+
+Review is conducted with mechanically observable signals, never subjective questions. "Is this
+function pure enough?" cannot be checked; "a `Repository` type appears in a decision function's
+parameters" can be grepped.
+
+| Principle | Failure signal |
+|---|---|
+| 1 Core/shell | A core module imports a db, http, or time package |
+| 2 Decide/execute | A function both computes and writes; or returns void yet carries meaning |
+| 3 Immutability | A parameter is mutated in place; setters; shared mutable collections |
+| 4 Types | The same validation repeats across layers; on Java 21+, a `default` branch in a `switch` over a **sealed** hierarchy |
+| 5 Errors | Expected failure used as control flow via exceptions; a swallowed catch |
+| 6 Dependencies | `Instant.now()`, `UUID.randomUUID()`, `new XxxClient()`, or a global singleton inside a function body |
+
+Signal 4 needs its scope stated precisely, because the same construct is correct in two of the
+three places it appears. A `default` branch is a violation **only** when the selector is a
+sealed hierarchy **and** the Effective Language Level is 21 or above — there it discards the
+compiler's exhaustiveness check, which is the entire reason for sealing the type. On 16/17 it
+is the prescribed idiom (§6.3), and over a non-sealed selector it is ordinary correct code at
+any version.
+
+## 8. Artifacts and load timing
+
+```
+functimize/                          local repo directory; plugin name is functional-first
+├── CONTEXT.md                       glossary
+├── docs/adr/                        decisions
+└── skills/functional-first/
+    ├── SKILL.md                     contract, greenfield gate, stance resolution,
+    │                                option sets, deviation rules, review signals
+    ├── snippets/claude-md.md        the installable always-on block
+    └── references/
+        ├── scala-3.md  scala-2.md
+        ├── java.md     python.md
+        └── kotlin.md   typescript.md   go.md
+```
+
+| Artifact | Loaded when |
+|---|---|
+| The `CLAUDE.md` block | Always — it carries Axis A itself, see §9.1 |
+| `SKILL.md` | Architecture design, library selection, code review |
+| `references/<lang>.md` | Implementing in that language |
+
+Structural decisions are worth the most at design time, when they are still cheap to change.
+Idiom detail is only needed at implementation time, and loading one language file then is
+cheap.
+
+## 9. Distribution
+
+Packaged as a **plugin** so teams can install it; a bare skill directory requires manual
+symlinking, which does not survive team distribution.
+
+Naming is three independent layers, and only one of them is published:
+
+| Layer | Name | Effect |
+|---|---|---|
+| local repo directory | `functimize` | none — a directory name on one machine |
+| plugin | `functional-first` | namespace prefix at invocation |
+| skill | `functional-first` | triggering depends on the description, not the name |
+
+Invocation reads `functional-first:functional-first`. The repetition is accepted deliberately:
+one published name is easier to remember and refer to than a brand namespace plus a separate
+skill name, and the cost is cosmetic. Only the local repo directory keeps the `functimize`
+name, where it is visible to nobody but its owner.
+
+### 9.1 Triggering
+
+This guideline is not a topic anyone raises. Nobody asks for a functional order service; they
+ask for an order service. Triggering therefore cannot depend on the subject coming up, which
+rules out any mechanism keyed to the user mentioning functional design. The mechanisms below
+are layered by how reliably they fire.
+
+**Layer 1 — the `CLAUDE.md` block carries Axis A itself, not a pointer to it.** This is the
+only layer that fires unconditionally, because it is in context before anything is matched
+against anything else. The consequence is the one that matters: in a session where the skill
+never loads, the six principles are still present and the design still comes out functional.
+The skill supplies depth — per-language idiom, stance resolution, review signals — while the
+block supplies the guideline.
+
+```markdown
+## Functional-first
+
+Default to functional structure, in every language:
+
+- I/O, database, clock, and network at the edges; decision logic pure
+- The core returns a description of what should happen; the shell performs it
+- Data is immutable; transformations return new values
+- Illegal states unrepresentable; legal states handled exhaustively
+- Expected failure is a return value, not an exception
+- Dependencies — including clock, randomness, and IDs — are passed in
+
+Deviating is allowed. Deviating silently is not: name the principle and the reason.
+
+Designing, planning, choosing a library, or reviewing → load
+`functional-first:functional-first` for per-language idiom and stance.
+Applies whenever brainstorming or writing-plans runs.
+```
+
+**Layer 2 — chain off the process skills.** The block names brainstorming and writing-plans
+explicitly. Those fire reliably on exactly the work this guideline should shape, and borrowing
+a trigger that already works is cheaper and more robust than engineering a new one.
+
+**Layer 3 — a situational description.** The skill description names what the user is doing,
+never what the guideline believes: designing a service, module, or API; writing an
+implementation plan; choosing a library or framework; implementing backend logic; reviewing
+code. A description phrased around "functional architecture" would match only users who
+already said the word — precisely the population that least needs it.
+
+**Layer 4 — a hook, for teams wanting hard enforcement.** A `PreToolUse` hook on writes to
+source files can inject the principles at the moment code is produced. It is the strongest
+mechanism available and the most intrusive, and it is the only one that reaches edits too
+small to read as design work. Offered, not required; out of scope for the first release.
+
+Stated plainly rather than implied: **nothing makes a model do something every single time
+except putting it in context.** Layer 1 is a guarantee; layers 2 through 4 raise probability.
+A team that wants this guideline unconditionally installs the block — which is why the block
+is recommended rather than optional, even though the skill functions without it.
+
+The block ships as an installable snippet, and the adopter chooses where it goes:
+
+| Adoption | Install into | Effect |
+|---|---|---|
+| Individual | `~/.claude/CLAUDE.md` | all of that user's projects |
+| Team | project `CLAUDE.md` | everyone on the repo |
+
+Team adoption additionally puts the block and the recorded Stance in the same file, keeping a
+project's whole functional-first configuration in one place.
+
+## 10. Out of scope
+
+- Kotlin, TypeScript, and Go references — deferred by the order in 6.5, not by exclusion.
+- Automated enforcement (lint rules, CI checks) built from the failure signals. The signals are
+  designed to be mechanical so this stays possible later; it is not built now.
+- The layer-4 `PreToolUse` hook described in §9.1. It is the only mechanism reaching edits too
+  small to read as design work, and is deferred rather than rejected.
+- Migration guidance for converting an existing OO codebase. Brownfield scope is deliberately
+  limited to new files and functions actually being modified.

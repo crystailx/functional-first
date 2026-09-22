@@ -267,13 +267,19 @@ Review is conducted with mechanically observable signals, never subjective quest
 function pure enough?" cannot be checked; "a `Repository` type appears in a decision function's
 parameters" can be grepped.
 
+Holding that line is harder than it looks. A first draft of these six paired a mechanical
+clause with a judgement clause in three of them — "while carrying meaning", "the same
+validation repeating across layers", "caught as control flow" — each of which smuggles back
+exactly the kind of question this section exists to exclude. Every signal below names something
+a reader can point at.
+
 | Principle | Failure signal |
 |---|---|
 | 1 Core/shell | A core module imports a db, http, or time package |
-| 2 Decide/execute | A function both computes and writes; or returns void yet carries meaning |
+| 2 Decide/execute | A function both computes a value and performs a write; or a core function returns `void`/`Unit` |
 | 3 Immutability | A parameter is mutated in place; setters; shared mutable collections |
-| 4 Types | The same validation repeats across layers; on Java 21+, a `default` branch in a `switch` over a **sealed** hierarchy |
-| 5 Errors | Expected failure used as control flow via exceptions; a swallowed catch |
+| 4 Types | A function re-checks the invariant of an already-parsed parameter type; on Java 21+, a `default` branch in a `switch` over a **sealed** hierarchy |
+| 5 Errors | A `catch` that returns a normal value instead of rethrowing; a `catch` with an empty body |
 | 6 Dependencies | `Instant.now()`, `UUID.randomUUID()`, `new XxxClient()`, or a global singleton inside a function body |
 
 Signal 4 needs its scope stated precisely, because the same construct is correct in two of the

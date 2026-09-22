@@ -21,7 +21,9 @@ BigDecimal total(List<Line> lines) { ... }
 
 ### Signal 2 — Decide/execute
 
-A function both computes and writes, or returns `void`/`Unit` while carrying meaning.
+A function that both computes a value and performs a write. Also: a core function whose
+return type is `void` or `Unit` — a decision that returns nothing has already been executed
+somewhere inside.
 
 ### Signal 3 — Immutability
 
@@ -29,7 +31,9 @@ A parameter mutated in place, a setter, or a shared mutable collection escaping 
 
 ### Signal 4 — Types
 
-The same validation repeating across layers.
+A function whose parameter is an already-parsed type, re-checking that type's invariant in its
+body — the boundary parsed it once, so a second check means the type is not carrying its
+guarantee.
 
 Also: on Java **21+**, a `default` branch in a `switch` over a **sealed** hierarchy — it
 discards the exhaustiveness check that sealing exists to provide.
@@ -45,7 +49,8 @@ appears:
 
 ### Signal 5 — Errors
 
-Expected failure raised as an exception and caught as control flow; or a swallowed `catch`.
+A `catch` block that returns a normal value instead of rethrowing — the exception is standing
+in for a return type. Also: a `catch` with an empty body.
 
 ### Signal 6 — Dependencies
 

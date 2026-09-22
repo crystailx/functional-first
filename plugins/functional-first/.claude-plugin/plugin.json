@@ -1,0 +1,19 @@
+{
+  "name": "functional-first",
+  "description": "A cross-language guideline that biases architecture, planning, implementation, and library selection toward functional design.",
+  "version": "0.1.0",
+  "author": {
+    "name": "CrystailX"
+  },
+  "homepage": "https://github.com/crystailx/functional-first",
+  "repository": "https://github.com/crystailx/functional-first",
+  "license": "MIT",
+  "keywords": [
+    "functional",
+    "architecture",
+    "design",
+    "scala",
+    "java",
+    "python"
+  ]
+}

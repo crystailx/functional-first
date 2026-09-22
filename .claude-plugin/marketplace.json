@@ -1,0 +1,20 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "functional-first",
+  "description": "Functional-first design guidance for Claude Code",
+  "owner": {
+    "name": "CrystailX"
+  },
+  "plugins": [
+    {
+      "name": "functional-first",
+      "description": "A cross-language guideline that biases architecture, planning, implementation, and library selection toward functional design.",
+      "author": {
+        "name": "CrystailX"
+      },
+      "category": "productivity",
+      "source": "./plugins/functional-first",
+      "homepage": "https://github.com/crystailx/functional-first"
+    }
+  ]
+}

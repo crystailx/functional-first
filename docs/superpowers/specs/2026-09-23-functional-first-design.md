@@ -138,11 +138,26 @@ mark one as declining, but it may never yield an empty menu, and every option it
 satisfy Axis A.
 
 Java and Python hold `{ native }` because there is nothing worth betting on rather than out of
-conservatism: Java's FP library ecosystem is thin while Loom makes direct style viable, and in
-Python a hand-written `Result` of roughly twenty lines reads better than a niche dependency.
-Both reach full Axis A natively. These are exactly the claims the refresh exists to re-check —
-if a Java effect library gains real traction, the refresh is what turns `{ native }` into a
-question that did not previously exist.
+conservatism. Both reach full Axis A natively, and in Python a hand-written `Result` of roughly
+twenty lines reads better than a niche dependency.
+
+For Java the reason is a distinction rather than a scarcity, and the first refresh is what
+found it. This spec originally justified the row by calling Java's FP ecosystem thin and Vavr
+moribund. **Vavr reached 1.0 in February 2026**, so that justification is simply false — but
+the row survives it, because Vavr supplies `Try`, `Either`, and immutable collections, and
+those are data types rather than effect machinery. Axis B asks which machinery carries the
+effects. Vavr stands to Java as cats core stands to Scala: real, useful, and not an answer to
+that question, which is why neither appears in an option set. No Java effect runtime with
+adoption comparable to ZIO or cats-effect exists, and Loom makes direct style viable.
+
+A project that already uses Vavr is a different matter, and is handled by a different
+mechanism: `vavr` is in the build-file signal list, so a brownfield Java project using it is
+followed rather than asked. Option sets govern what a greenfield project is offered; signals
+govern what an existing one is already committed to. The two lists are not required to match.
+
+These are exactly the claims the refresh exists to re-check. Had the refresh found an effect
+runtime rather than a data-type library, it would have turned `{ native }` into a question that
+did not previously exist.
 
 ### 4.4 Asking well
 

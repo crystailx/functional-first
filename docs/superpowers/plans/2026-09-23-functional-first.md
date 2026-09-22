@@ -32,7 +32,7 @@ A task is done when its gate has been run and its result recorded — not when i
 - **No test suite, and no Python anywhere in the repo.** Verification is behavioural; see below.
 - Axis A is exactly **six principles**, applied at full rigor in every language, never discounted for language capability.
 - The deviation whitelist is exactly **three items**: measured hot path, framework grain, existing-codebase consistency. The third is brownfield-only and protects only Contagious Changes.
-- Brownfield scope is **new files plus modified functions**. "Module" must never appear as a scope boundary.
+- Brownfield scope is **new files plus modified functions**. "Module" must never appear as a scope boundary in `SKILL.md`'s body. The frontmatter `description` may use it as a situation noun ("designing a service, module, or API") — that is naming what a user is doing, not defining scope.
 - Option sets: Java `{ native }`, Python `{ native }`, Scala 3 `{ ZIO 2, cats-effect 3, direct style }`, Scala 2 `{ ZIO 2, cats-effect 3, direct style }`. Nothing derived from these is stored anywhere — the ask rule is computed, never recorded.
 - Ask rule: **set size > 1 → ask; size = 1 → proceed.** No High/Medium/Low level anywhere.
 - Review signal 4 fires **only** over a sealed hierarchy at Effective Language Level 21+.

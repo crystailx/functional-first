@@ -39,7 +39,7 @@ A task is done when its gate has been run and its result recorded — not when i
 - Java tiers are **8/11**, **16/17**, **21+**. Detection reads the build target plus source evidence, never the runtime.
 - Python: a strict type checker (mypy or pyright, strict, with `assert_never`) is a **precondition** for principle 4.
 - `references/*.md` carry capability and idiom only. Stance — including option sets — lives in `SKILL.md`.
-- Reference order: `scala-3.md` → `java.md` → `python.md`.
+- Reference order: `scala-2.md` → `scala-3.md` → `java.md` → `python.md`. Scala 2 ships alongside Scala 3, not after it — new projects adopt 2.13 for real reasons, so shipping only Scala 3 would leave the Scala 2 stance resolvable but unsupported.
 - Vocabulary is fixed by `CONTEXT.md`: Axis A, Axis B, Deviation, Substitution, Effective Language Level, Stance, Taste Fork, Contagious Change, Failure Signal.
 
 ## Target layout
@@ -57,6 +57,7 @@ functimize/                                     local dir; published as function
         ├── snippets/claude-md.md               the always-on block
         └── references/
             ├── review-signals.md
+            ├── scala-2.md
             ├── scala-3.md
             ├── java.md
             └── python.md
@@ -372,6 +373,7 @@ what the language and its ecosystem can do, and what idiomatic code looks like.
 | Language | Reference |
 |---|---|
 | Scala 3 | `references/scala-3.md` |
+| Scala 2 | `references/scala-2.md` |
 | Java | `references/java.md` |
 | Python | `references/python.md` |
 
@@ -409,7 +411,7 @@ git commit -m "feat: add SKILL.md with contract, gate, stance resolution, deviat
 
 **Interfaces:**
 - Consumes: the six principles from Task 3's `SKILL.md`
-- Produces: the signal definitions; Task 6's Java tier table is cited by Signal 4
+- Produces: the signal definitions; Task 7's Java tier table is cited by Signal 4
 
 - [ ] **Step 1: Write the reference**
 
@@ -489,14 +491,21 @@ git commit -m "feat: add review signals reference"
 
 ---
 
-### Task 5: Scala 3 reference
+### Task 5: Scala 2 reference
 
 **Files:**
-- Create: `plugins/functional-first/skills/functional-first/references/scala-3.md`
+- Create: `plugins/functional-first/skills/functional-first/references/scala-2.md`
 
 **Interfaces:**
-- Consumes: the Scala 3 option set from Task 3's `SKILL.md`
-- Produces: idiom for all three options, loaded when implementing Scala 3
+- Consumes: the Scala 2 option set from Task 3's `SKILL.md`
+- Produces: idiom for all three options on Scala 2, and **the worked example** — one small
+  domain, carried unchanged into `scala-3.md` in Task 6 so a reader moving between the two
+  files compares like with like
+
+**Scala 2 is not a legacy tier and this reference is not a migration note.** New projects adopt
+2.13 for real reasons — Spark's cross-publishing being the common one — so it carries the same
+weight as `scala-3.md`. It ships first precisely so it is written on its own terms rather than
+as a diff against Scala 3.
 
 This reference documents ZIO, cats-effect, and direct style **even-handedly**. Describing how
 each is written is a fact; saying which to pick is stance and belongs in `SKILL.md`.
@@ -504,9 +513,93 @@ each is written is a fact; saying which to pick is stance and belongs in `SKILL.
 - [ ] **Step 1: Verify the ecosystem facts before writing them**
 
 The spec flags its ecosystem claims as recalled rather than verified. Search for the current
-state of: ZIO 2's latest line and Scala 3 support; cats-effect 3's latest line; whether Ox is
-still the active direct-style library for Scala 3; and whether Scala 3 `enum` exhaustiveness
-checking in `match` has changed.
+state of: which Scala 2 versions ZIO 2 and cats-effect 3 cross-publish for; whether any
+direct-style library serves Scala 2, given Ox requires Scala 3; whether a non-exhaustive
+`match` over a `sealed trait` is a **warning or an error** by default in 2.13 and which
+compiler flag makes it fatal; and Spark's current Scala version support, since that is the most
+common reason a new project is on 2.13 at all.
+
+If any finding contradicts the option-set table in `SKILL.md`, fix that table first and re-run
+Task 3's gate before continuing.
+
+- [ ] **Step 2: Write the reference**
+
+Create `references/scala-2.md`, structured as:
+
+- A header line `last-verified: YYYY-MM` recording Step 1's findings.
+- **Making principle 4 enforced**, stated first because it governs everything below.
+  Exhaustivity over a `sealed trait` is reported as a compiler warning rather than an error
+  unless fatal warnings are enabled. Give the exact flag found in Step 1, and say plainly that
+  without it principle 4 is advisory in that project — the same shape as Python's
+  strict-checker precondition, and for the same reason: a guarantee nobody enforces is not a
+  guarantee.
+- **Native capability** — `sealed trait` plus `case class` for ADTs, value classes
+  (`extends AnyVal`) for zero-cost wrappers, implicit parameters for dependency passing, and
+  right-biased `Either` (`since: 2.12`). Include the **worked example** here — one small domain,
+  a pure decision function returning `Either`, and the caller performing effects. Task 6 reuses
+  this same domain, so choose one that survives translation.
+- **ZIO 2 idiom** — `ZIO[R, E, A]` carrying environment, typed error, and result; `ZLayer` for
+  dependency wiring; and the note that principle 2 is satisfied structurally because a `ZIO`
+  value *is* a description. The same worked example, naming the cross-published artifact found
+  in Step 1.
+- **cats-effect 3 idiom** — `IO`, `Resource`, `Ref`; constructor injection or tagless final for
+  principle 6; typical companions (`http4s`, `fs2`, `doobie`). The same worked example.
+- **Direct style idiom** — the same example with no effect monad: a pure `sealed trait` core,
+  `Either` for failure, effects performed by ordinary code at the edge. State outright that Ox
+  is unavailable here and what stands in its place per Step 1.
+- **Substitutions** — a table mapping each Scala 3 construct to its Scala 2 form (`enum` →
+  `sealed trait` + `case class`; `opaque type` → value class; `given`/`using` → implicit
+  parameters; union types → no equivalent, model explicitly). This table is what stops a reader
+  or a model defaulting to Scala 3 idiom from writing code that will not compile — which is the
+  direction that actually breaks, since Scala 2 forms remain legal in Scala 3.
+
+Every construct carries a `since:` marker where it is not available across all supported 2.x
+releases. No section states or implies a preference between the three options, and none frames
+Scala 2 as a lesser version of Scala 3.
+
+- [ ] **Step 3: GATE — implement with it and read the output**
+
+In a scratch Scala 2.13 project with a recorded Stance of `cats-effect 3`, ask for a small
+feature — "add an endpoint that cancels an order". Expected: the decision logic is a pure
+function over the `sealed trait` model returning `Either`, effects sit at the edge, and the
+cats-effect idiom matches the reference rather than being invented.
+
+Then repeat with the Stance set to `direct style`. Expected: the same pure core, no `IO`, and
+no suggestion that direct style is the weaker choice.
+
+Also confirm that scaffolding the build mentions the fatal-warnings flag. Omitting it silently
+is the failure this gate exists to catch: the model will look correct while enforcing nothing.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add plugins/functional-first/skills/functional-first/references/scala-2.md
+git commit -m "feat: add Scala 2 reference with exhaustivity-enforcement precondition"
+```
+
+---
+
+### Task 6: Scala 3 reference
+
+**Files:**
+- Create: `plugins/functional-first/skills/functional-first/references/scala-3.md`
+
+**Interfaces:**
+- Consumes: the Scala 3 option set from Task 3's `SKILL.md`; **the worked example** defined in
+  Task 5's `scala-2.md`, carried over unchanged so the two files compare like with like
+- Produces: idiom for all three options on Scala 3, loaded when implementing Scala 3
+
+This reference documents ZIO, cats-effect, and direct style **even-handedly**. Describing how
+each is written is a fact; saying which to pick is stance and belongs in `SKILL.md`.
+
+- [ ] **Step 1: Verify the ecosystem facts before writing them**
+
+Search for the current state of: ZIO 2's latest line and its Scala 3 support; cats-effect 3's
+latest line; whether Ox is still the active direct-style library for Scala 3; and whether a
+non-exhaustive `match` over an `enum` or `sealed` type is a **warning or an error** by default,
+plus which compiler flag makes it fatal. That last one decides whether principle 4 is enforced
+or merely documented — Task 5 will have established the Scala 2 answer, and the two need not
+match.
 
 If any finding contradicts the option-set table in `SKILL.md`, fix that table first and re-run
 Task 3's gate before continuing.
@@ -516,33 +609,37 @@ Task 3's gate before continuing.
 Create `references/scala-3.md`, structured as:
 
 - A header line `last-verified: YYYY-MM` recording Step 1's findings.
+- **Enforcing principle 4** — state whether exhaustivity is a warning or an error by default
+  per Step 1, and give the flag that makes it fatal. If the answer differs from Scala 2's, say
+  so; a reader arriving from `scala-2.md` will assume it carries over.
 - **Native capability** — `enum` for ADTs (`since: 3.0`), `case class` for immutable records,
   `opaque type` for zero-cost wrappers (`since: 3.0`), `given`/`using` for explicit dependency
   passing (`since: 3.0`), compiler exhaustiveness over `enum` and `sealed` in `match`, and
-  `Either` for errors as values. Include one worked ADT-plus-decision example: an `enum`
-  domain model, a pure decision function returning `Either`, and the caller performing effects.
+  `Either` for errors as values. Carry over **the worked example from `scala-2.md`** — the same
+  domain, now expressed with `enum` — so the difference on the page is idiom and nothing else.
 - **ZIO 2 idiom** — `ZIO[R, E, A]` carrying environment, typed error, and result; `ZLayer` for
   dependency wiring; and the note that principle 2 is satisfied structurally because a `ZIO`
   value *is* a description. The same worked example expressed in ZIO.
-- **cats-effect 3 idiom** — `IO`, `Resource`, `Ref`; constructor injection or tagless final
-  for principle 6; typical companions (`http4s`, `fs2`, `doobie`). The same worked example.
+- **cats-effect 3 idiom** — `IO`, `Resource`, `Ref`; constructor injection or tagless final for
+  principle 6; typical companions (`http4s`, `fs2`, `doobie`). The same worked example.
 - **Direct style idiom** — the same example with no effect monad: a pure `enum`-based core,
   `Either` for failure, effects performed by ordinary code at the edge, and the concurrency
   tooling noted with its `since:` marker per Step 1's findings.
-- **Substitutions** — none needed; Scala 3 expresses every Axis A principle natively.
+- **Substitutions** — none needed; Scala 3 expresses every Axis A principle natively. Point at
+  `scala-2.md`'s substitution table for readers moving the other way, since Scala 3 constructs
+  are the ones that fail to compile on 2.13.
 
 Every construct not available in all supported Scala 3 releases carries a `since:` marker. No
 section states or implies a preference between the three options.
 
-- [ ] **Step 3: GATE — implement with it and read the output**
+- [ ] **Step 3: GATE — confirm the version is read, not assumed**
 
-In a scratch Scala 3 project with a recorded Stance of `cats-effect 3`, ask for a small
-feature — "add an endpoint that cancels an order". Expected: the decision logic is a pure
-function over the `enum` model returning `Either`, effects sit at the edge, and the
-cats-effect idiom matches the reference rather than being invented.
+Two scratch sbt projects with identical requests, one `scalaVersion := "3.x"` and one
+`scalaVersion := "2.13.x"`. Ask for the same small domain model in each.
 
-Then repeat with the Stance set to `direct style`. Expected: the same pure core, no `IO`, and
-no suggestion that direct style is the weaker choice.
+Expected: the first uses `enum`, the second uses `sealed trait` plus `case class`, and neither
+output suggests the other is the proper way. A single answer in both is a failure — it means
+the version was assumed rather than read from the build.
 
 - [ ] **Step 4: Commit**
 
@@ -553,7 +650,7 @@ git commit -m "feat: add Scala 3 reference covering all three machinery options"
 
 ---
 
-### Task 6: Java reference
+### Task 7: Java reference
 
 **Files:**
 - Create: `plugins/functional-first/skills/functional-first/references/java.md`
@@ -615,7 +712,7 @@ git commit -m "feat: add Java reference with 8/17/21 capability tiers"
 
 ---
 
-### Task 7: Python reference
+### Task 8: Python reference
 
 **Files:**
 - Create: `plugins/functional-first/skills/functional-first/references/python.md`
@@ -678,13 +775,13 @@ git commit -m "feat: add Python reference with strict-checker precondition"
 
 ---
 
-### Task 8: README and install documentation
+### Task 9: README and install documentation
 
 **Files:**
 - Create: `README.md`
 
 **Interfaces:**
-- Consumes: every artifact from Tasks 1–7
+- Consumes: every artifact from Tasks 1–8
 - Produces: the shipped repository
 
 - [ ] **Step 1: Write the README**
@@ -739,9 +836,9 @@ git commit -m "docs: add README with installation and adoption modes"
   the moment it matters. An earlier draft of this plan stored an `asks` flag beside each set
   and then added a test to keep the two consistent — which is precisely the failure principles
   3 and 6 exist to prevent.
-- **Verify before writing ecosystem facts.** Tasks 5–7 each open with a search step. Treat a
+- **Verify before writing ecosystem facts.** Tasks 5–8 each open with a search step. Treat a
   contradiction with `SKILL.md`'s option-set table as a finding to fix there first.
 - **References are facts, never stance.** If a sentence tells the reader which library to pick,
   it belongs in `SKILL.md` or nowhere.
-- **`scala-2.md`, `kotlin.md`, `typescript.md`, and `go.md` are out of scope here.** `SKILL.md`
-  lists only the references that exist; add rows as the files arrive in later plans.
+- **`kotlin.md`, `typescript.md`, and `go.md` are out of scope here.** `SKILL.md` lists only the
+  references that exist; add rows as the files arrive in later plans.

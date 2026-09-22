@@ -242,11 +242,24 @@ documentation value only in that project, and degrades accordingly. Silence here
 absence: it produces rigorous-looking `Union` + `Literal` models with zero enforcement, which
 misleads readers into believing they are protected.
 
+Python is the clearest case but may not be the only one. Scala reports a non-exhaustive match
+over a sealed hierarchy as a compiler warning rather than an error unless fatal warnings are
+enabled, which would make a compiler flag a precondition of the same shape. Each language
+reference establishes its own answer during the verification step that opens its work, and
+states the flag where one is needed.
+
 ### 6.5 Order of work
 
-`scala-3.md` → `java.md` → `python.md`, then `scala-2.md`, `kotlin.md`, `typescript.md`,
+`scala-2.md` → `scala-3.md` → `java.md` → `python.md`, then `kotlin.md`, `typescript.md`,
 `go.md`. References are created lazily; writing one on demand beats writing it early and
 letting it rot.
+
+**Scala 2 and Scala 3 ship together, and Scala 2 goes first.** Shipping only one would leave
+the other's stance resolvable but unsupported — `SKILL.md` would answer "cats-effect 3" for a
+2.13 project and then have no idiom to offer, which is worse than not covering Scala 2 at all.
+Scala 2 is written first so it stands on its own terms rather than as a diff against Scala 3,
+and it carries the worked example that `scala-3.md` then re-expresses. It is not a legacy tier:
+new projects adopt 2.13 for real reasons, Spark's cross-publishing being the common one.
 
 ## 7. Review — failure signals
 

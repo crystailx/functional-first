@@ -238,13 +238,13 @@
     {
       "id": 15,
       "title": "Ship as a plugin under one published name",
-      "choice": "The repo is a marketplace. Two manifests ship — marketplace.json at the root and plugin.json under plugins/functional-first/ — giving `/plugin marketplace add crystailx/functimize` then `/plugin install functional-first@functimize`. Marketplace is functimize; plugin and skill are both functional-first.",
+      "choice": "The repo is a marketplace. Two manifests ship — marketplace.json at the root and plugin.json under plugins/functional-first/ — giving `/plugin marketplace add crystailx/functional-first` then `/plugin install functional-first@functional-first`. Every published layer is named functional-first; functimize survives only as the local directory.",
       "alternatives": [
         "Ship only a plugin manifest",
-        "Keep functimize as the plugin namespace, giving functimize:functional-first",
+        "Use a distinct brand namespace above the skill, e.g. functimize:functional-first",
         "Ship a bare skill directory with symlink instructions"
       ],
-      "why": "A plugin manifest alone is not installable from git — marketplace.json at the repository root is what `/plugin marketplace add` reads. The marketplace layer also settles the naming: functimize names the collection, leaving the plugin free to describe itself.",
+      "why": "A plugin manifest alone is not installable from git — marketplace.json at the repository root is what `/plugin marketplace add` reads. One published name means one thing to remember; a separate brand namespace buys a tidier invocation at the price of two names a user must keep straight.",
       "impact": ["§9", "plugins/functional-first/.claude-plugin/plugin.json"],
       "risk": "Adopters must add a marketplace before installing — two commands rather than one, and a second marketplace to maintain alongside the existing crystailx-skills one.",
       "flags": [

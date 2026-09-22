@@ -273,7 +273,7 @@ any version.
 ## 8. Artifacts and load timing
 
 ```
-functimize/                                  the repo, and the marketplace
+functimize/                                  local dir; published as functional-first
 ├── .claude-plugin/marketplace.json          what `/plugin marketplace add` reads
 ├── CONTEXT.md                               glossary
 ├── docs/adr/                                decisions
@@ -309,23 +309,25 @@ not distributable at all — it requires manual symlinking, which does not survi
 repo to a team.
 
 ```
-/plugin marketplace add crystailx/functimize
-/plugin install functional-first@functimize
+/plugin marketplace add crystailx/functional-first
+/plugin install functional-first@functional-first
 ```
 
-That gives three names, each doing a different job:
+**Every published layer carries the same name.** There is exactly one name to remember:
 
 | Layer | Name | Effect |
 |---|---|---|
-| marketplace | `functimize` | what a user adds; the `@functimize` in an install command |
+| local repo directory | `functimize` | none — a directory name on one machine |
+| GitHub repo | `functional-first` | what a user adds as a marketplace |
+| marketplace | `functional-first` | the `@functional-first` in an install command |
 | plugin | `functional-first` | namespace prefix at invocation |
 | skill | `functional-first` | triggering depends on the description, not the name |
 
-Invocation reads `functional-first:functional-first`. The repetition is accepted deliberately:
-one published skill name is easier to remember than a brand namespace plus a separate skill
-name, and the cost is cosmetic. The marketplace layer is where `functimize` earns its keep —
-it names the collection, leaving the plugin free to describe itself, and giving later sibling
-plugins somewhere to live.
+Both the install command and the invocation therefore repeat the name, and that is accepted
+deliberately. The alternative — a distinct brand namespace above a descriptive skill name —
+buys a tidier-looking invocation at the price of two names a user must learn and keep straight,
+and the repetition costs nothing but a glance. `functimize` survives only as the local
+directory, visible to nobody but its owner.
 
 ### 9.1 Triggering
 

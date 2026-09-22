@@ -28,7 +28,8 @@ A task is done when its gate has been run and its result recorded — not when i
 ## Global Constraints
 
 - All shipped artifacts are written in **English**. Only conversation with the user is in Traditional Chinese.
-- Marketplace name `functimize`; plugin name `functional-first`; skill name `functional-first`. Install reads `/plugin install functional-first@functimize`.
+- Every published layer is named `functional-first` — GitHub repo, marketplace, plugin, and skill alike. Install reads `/plugin install functional-first@functional-first`. `functimize` is the local directory name only and appears in no manifest.
+- **No test suite, and no Python anywhere in the repo.** Verification is behavioural; see below.
 - Axis A is exactly **six principles**, applied at full rigor in every language, never discounted for language capability.
 - The deviation whitelist is exactly **three items**: measured hot path, framework grain, existing-codebase consistency. The third is brownfield-only and protects only Contagious Changes.
 - Brownfield scope is **new files plus modified functions**. "Module" must never appear as a scope boundary.
@@ -44,7 +45,7 @@ A task is done when its gate has been run and its result recorded — not when i
 ## Target layout
 
 ```
-functimize/                                     repo, and the marketplace
+functimize/                                     local dir; published as functional-first
 ├── .claude-plugin/marketplace.json
 ├── README.md
 ├── CONTEXT.md                                  already committed
@@ -91,7 +92,7 @@ Create `.claude-plugin/marketplace.json`:
 ```json
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "functimize",
+  "name": "functional-first",
   "description": "Functional-first design guidance for Claude Code",
   "owner": {
     "name": "CrystailX"
@@ -105,7 +106,7 @@ Create `.claude-plugin/marketplace.json`:
       },
       "category": "productivity",
       "source": "./plugins/functional-first",
-      "homepage": "https://github.com/crystailx/functimize"
+      "homepage": "https://github.com/crystailx/functional-first"
     }
   ]
 }
@@ -123,8 +124,8 @@ Create `plugins/functional-first/.claude-plugin/plugin.json`:
   "author": {
     "name": "CrystailX"
   },
-  "homepage": "https://github.com/crystailx/functimize",
-  "repository": "https://github.com/crystailx/functimize",
+  "homepage": "https://github.com/crystailx/functional-first",
+  "repository": "https://github.com/crystailx/functional-first",
   "license": "MIT",
   "keywords": [
     "functional",
@@ -137,17 +138,7 @@ Create `plugins/functional-first/.claude-plugin/plugin.json`:
 }
 ```
 
-- [ ] **Step 4: Verify both manifests parse**
-
-```bash
-python3 -m json.tool .claude-plugin/marketplace.json > /dev/null && \
-python3 -m json.tool plugins/functional-first/.claude-plugin/plugin.json > /dev/null && \
-echo "both manifests parse"
-```
-
-Expected: `both manifests parse`
-
-- [ ] **Step 5: GATE — install from the local path and confirm the plugin appears**
+- [ ] **Step 4: GATE — install from the local path and confirm the plugin appears**
 
 Ask the user to run, in their terminal:
 
@@ -156,18 +147,22 @@ Ask the user to run, in their terminal:
 /plugin
 ```
 
-Expected: the `functimize` marketplace lists a `functional-first` plugin. Installing it should
-succeed even though the skill file does not exist yet — a plugin with no skills is valid, and
-this gate isolates manifest problems from skill problems.
+Expected: the `functional-first` marketplace lists a `functional-first` plugin. Installing it
+should succeed even though the skill file does not exist yet — a plugin with no skills is
+valid, and this gate isolates manifest problems from skill problems.
+
+This gate also subsumes any separate JSON syntax check: malformed manifests are rejected here,
+and rejection by the real loader is better evidence than a parser saying the bytes are valid
+JSON.
 
 Record the actual output. If the marketplace is rejected, the manifest shape is wrong and no
 later task can be verified — stop and fix it here.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add .claude-plugin plugins/functional-first/.claude-plugin
-git commit -m "feat: add functimize marketplace and functional-first plugin manifests"
+git commit -m "feat: add marketplace and plugin manifests"
 ```
 
 ---
@@ -701,8 +696,8 @@ Create `README.md` covering:
   not want functional design removes the skill.
 - **Installing the plugin**, with the exact commands:
   ```
-  /plugin marketplace add crystailx/functimize
-  /plugin install functional-first@functimize
+  /plugin marketplace add crystailx/functional-first
+  /plugin install functional-first@functional-first
   ```
 - **Installing the snippet**, with the two adoption modes as a table — `~/.claude/CLAUDE.md`
   for an individual, covering all their projects; a project `CLAUDE.md` for a team, covering
@@ -718,7 +713,7 @@ Push the branch, then from a directory that is not this repo:
 
 ```
 /plugin marketplace add <the pushed git URL>
-/plugin install functional-first@functimize
+/plugin install functional-first@functional-first
 ```
 
 Then run Task 3's scenario 1 once more. Expected: identical behaviour to the local-path

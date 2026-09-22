@@ -273,19 +273,21 @@ any version.
 ## 8. Artifacts and load timing
 
 ```
-functimize/                          local repo directory; plugin name is functional-first
-├── CONTEXT.md                       glossary
-├── docs/adr/                        decisions
-└── skills/functional-first/
-    ├── SKILL.md                     contract, greenfield gate, stance resolution,
-    │                                deviation rules
-    ├── snippets/claude-md.md        the installable always-on block
-    └── references/
-        ├── ecosystem.json           option sets, last-verified dates, build markers
-        ├── review-signals.md        the six failure signals
-        ├── scala-3.md  scala-2.md
-        ├── java.md     python.md
-        └── kotlin.md   typescript.md   go.md
+functimize/                                  the repo, and the marketplace
+├── .claude-plugin/marketplace.json          what `/plugin marketplace add` reads
+├── CONTEXT.md                               glossary
+├── docs/adr/                                decisions
+└── plugins/functional-first/
+    ├── .claude-plugin/plugin.json
+    └── skills/functional-first/
+        ├── SKILL.md                         contract, greenfield gate, stance
+        │                                    resolution incl. option sets, deviation
+        ├── snippets/claude-md.md            the installable always-on block
+        └── references/
+            ├── review-signals.md            the six failure signals
+            ├── scala-3.md  scala-2.md
+            ├── java.md     python.md
+            └── kotlin.md   typescript.md   go.md
 ```
 
 | Artifact | Loaded when |
@@ -300,21 +302,30 @@ cheap.
 
 ## 9. Distribution
 
-Packaged as a **plugin** so teams can install it; a bare skill directory requires manual
-symlinking, which does not survive team distribution.
+Installation from git requires **two** manifests, not one. A plugin manifest alone is not
+installable: `/plugin marketplace add` reads a `marketplace.json` at the repository root, and
+that file is what lists the plugins and points at their directories. A bare skill directory is
+not distributable at all — it requires manual symlinking, which does not survive handing the
+repo to a team.
 
-Naming is three independent layers, and only one of them is published:
+```
+/plugin marketplace add crystailx/functimize
+/plugin install functional-first@functimize
+```
+
+That gives three names, each doing a different job:
 
 | Layer | Name | Effect |
 |---|---|---|
-| local repo directory | `functimize` | none — a directory name on one machine |
+| marketplace | `functimize` | what a user adds; the `@functimize` in an install command |
 | plugin | `functional-first` | namespace prefix at invocation |
 | skill | `functional-first` | triggering depends on the description, not the name |
 
 Invocation reads `functional-first:functional-first`. The repetition is accepted deliberately:
-one published name is easier to remember and refer to than a brand namespace plus a separate
-skill name, and the cost is cosmetic. Only the local repo directory keeps the `functimize`
-name, where it is visible to nobody but its owner.
+one published skill name is easier to remember than a brand namespace plus a separate skill
+name, and the cost is cosmetic. The marketplace layer is where `functimize` earns its keep —
+it names the collection, leaving the plugin free to describe itself, and giving later sibling
+plugins somewhere to live.
 
 ### 9.1 Triggering
 

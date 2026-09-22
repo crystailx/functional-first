@@ -238,15 +238,18 @@
     {
       "id": 15,
       "title": "Ship as a plugin under one published name",
-      "choice": "Plugin packaging for team installability. Plugin and skill are both functional-first, invoked as functional-first:functional-first; only the local repo directory keeps the name functimize.",
+      "choice": "The repo is a marketplace. Two manifests ship — marketplace.json at the root and plugin.json under plugins/functional-first/ — giving `/plugin marketplace add crystailx/functimize` then `/plugin install functional-first@functimize`. Marketplace is functimize; plugin and skill are both functional-first.",
       "alternatives": [
+        "Ship only a plugin manifest",
         "Keep functimize as the plugin namespace, giving functimize:functional-first",
         "Ship a bare skill directory with symlink instructions"
       ],
-      "why": "One published name is easier to remember and refer to than a brand namespace plus a separate skill name. The stutter at invocation is cosmetic, and functimize survives where it is visible to nobody but its owner.",
-      "impact": ["§9"],
-      "risk": "The namespace is spent on this one skill, so a sibling skill added later either lands under a name describing only its neighbour, or forces a rename that breaks existing invocations.",
-      "flags": [],
+      "why": "A plugin manifest alone is not installable from git — marketplace.json at the repository root is what `/plugin marketplace add` reads. The marketplace layer also settles the naming: functimize names the collection, leaving the plugin free to describe itself.",
+      "impact": ["§9", "plugins/functional-first/.claude-plugin/plugin.json"],
+      "risk": "Adopters must add a marketplace before installing — two commands rather than one, and a second marketplace to maintain alongside the existing crystailx-skills one.",
+      "flags": [
+        "CORRECTED after review — the original spec and plan shipped only a plugin manifest and placed skills/ at the repo root, which is not installable from git. Verified against a working marketplace repo on disk rather than from memory."
+      ],
       "anchor": "9."
     }
   ]

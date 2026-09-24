@@ -165,7 +165,7 @@ When the guideline asks, the question is *which machinery carries the effects*, 
 to be functional*. Every option presented satisfies Axis A — including direct style, which
 keeps ADTs, immutability, errors-as-values, and a pure core while declining an effect monad.
 
-The question must present trade-offs rather than names, so a team can actually decide, and it
+The question must name each option and present its trade-offs, so a team can actually decide, and it
 fires at architecture-design time — never mid-implementation.
 
 ### 4.5 Recording the stance

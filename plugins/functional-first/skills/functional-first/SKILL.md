@@ -84,7 +84,7 @@ pure core over records or frozen dataclasses, and failure travelling in a hand-w
 `Result` or the language's own sum type.
 
 **Ask about machinery, never about whether to be functional.** Every option on the menu
-already satisfies Axis A. Present trade-offs rather than names, and ask at design time, never
+already satisfies Axis A. Name each option and present its trade-offs, and ask at design time, never
 mid-implementation.
 
 Record the answer in the project's `CLAUDE.md`:

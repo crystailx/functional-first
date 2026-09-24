@@ -56,6 +56,11 @@ effect or FP library — `zio`, `cats-effect`, `arrow-kt`, `vavr`, `returns`, `e
 closed set: an unrecognised dependency that looks like effect or FP machinery falls through to
 asking, never to `native`.
 
+A signal governs what an existing project is already committed to, never what its reference
+offers — so when a signal names a library the matching language reference carries no idiom for,
+match that library's existing usage in the codebase and introduce nothing further from it; the
+reference still governs everything else.
+
 ### Option sets
 
 | Language | Axis-A-compliant machinery | Last verified |
@@ -85,7 +90,7 @@ mid-implementation.
 Record the answer in the project's `CLAUDE.md`:
 
 ```markdown
-## functional-first
+## functional-first stance
 - Axis B: cats-effect 3
 - Decided: 2026-09-23 — team already ships cats/http4s services
 ```

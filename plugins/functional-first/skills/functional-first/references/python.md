@@ -209,9 +209,14 @@ def cancel(order: Order) -> Result[OrderCancelled, CancellationError]:
 of the three states carries data beyond its own identity, the same shape as Scala's
 `case object` or Java's zero-component `record Placed()`, and a bare `Literal` says that
 more directly than three empty classes would. `CancellationError` stays a single, plain
-`dataclass` rather than a tagged union of its own — `java.md` makes the same call for the
-same reason: nothing in `cancel` dispatches on it, so there is nothing here for
-exhaustiveness to check.
+`dataclass` rather than a tagged union of its own. This is not the same call `java.md` makes —
+there, `CancellationError` is a `sealed interface` permitting `AlreadyCancelled` at every tier,
+including 8/11, where the interface itself is left open but the distinct `AlreadyCancelled`
+type still survives; what that tier declines is the Visitor treatment, not the variant. Python's
+dataclass stands on its own reasoning instead: `cancel` has exactly one failure case today, so a
+`Literal` discriminant would distinguish nothing, and adding one now would model a distinction
+this domain does not yet have. The moment a second failure case exists, `CancellationError`
+becomes a `Literal` union like `OrderStatus` above, not before.
 
 `cancel` returns a `Result` — a plain value describing what happened — instead of
 performing a write itself; the shell below is what performs it. That is principle 2 with

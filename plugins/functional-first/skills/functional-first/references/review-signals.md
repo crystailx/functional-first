@@ -38,13 +38,13 @@ guarantee.
 Also: on Java **21+**, a `default` branch in a `switch` over a **sealed** hierarchy — it
 discards the exhaustiveness check that sealing exists to provide.
 
-Scope matters here, because the same construct is correct in two of the three places it
-appears:
+Scope matters here, because the verdict is not the same at every Effective Language Level, and
+at one of them the construct being judged cannot be written at all:
 
 | Effective Language Level | Selector | `default` branch |
 |---|---|---|
 | 21+ | sealed | **violation** — defeats exhaustiveness |
-| 16 / 17 | sealed | correct — the prescribed idiom; matching is an `instanceof` chain |
+| 16 / 17 | sealed | unavailable — a `switch` cannot select on a `sealed` type before JEP 441 (Java 21); the tier's substitute is an `instanceof` chain closed by `else` |
 | any | non-sealed | correct — ordinary code |
 
 ### Signal 5 — Errors

@@ -54,7 +54,7 @@ a trap specifically on a `sealed` selector at this tier — verified directly al
 the identical switch with the same case omitted but a `default` branch added compiles cleanly,
 with no error and no warning. A fourth `OrderStatus` implementation added later, with its case
 forgotten, produces nothing at compile time; the `default` arm absorbs it silently.
-`references/review-signals.md`'s Signal 4 names this: a `default` branch over a `sealed`
+`review-signals.md`'s Signal 4 names this: a `default` branch over a `sealed`
 selector at 21+ is a violation, for exactly this reason. The same branch is correct, even
 necessary, one tier down — see Tier 16/17 below — because there is no switch-based check at that
 tier for a `default` to discard, and correct as ordinary code at any tier over a selector that

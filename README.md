@@ -112,7 +112,7 @@ Scala project has three, so it is asked once, at design time, and the answer is 
 is never asked again:
 
 ```markdown
-## functional-first
+## functional-first stance
 - Axis B: cats-effect 3
 - Decided: 2026-09-23 — team already ships cats/http4s services
 ```

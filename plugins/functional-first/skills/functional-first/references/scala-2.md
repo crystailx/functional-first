@@ -2,10 +2,11 @@
 
 last-verified: 2026-09
 
-This reference covers capability and idiom for Scala 2's Axis-B options — native, ZIO 2,
-cats-effect 3 — and direct style, which on this language line has no dedicated library. It
-states what each option can do and what code written in it looks like, and holds no preference
-among them: the choice is recorded per project in `SKILL.md`.
+This reference covers capability and idiom for Scala 2's three Axis-B options — ZIO 2,
+cats-effect 3, and direct style — and for the native language capability underneath all three,
+which is where the worked example below lives before any of the three shells are layered on top
+of it. It states what each option can do and what code written in it looks like, and holds no
+preference among them: the choice is recorded per project in `SKILL.md`.
 
 Scala 2.13 is a current target, not a prior one. Spark 4.x, for instance, currently requires
 Scala 2.13 and has no Scala 3 build — a new project built on Spark is on 2.13 by requirement,

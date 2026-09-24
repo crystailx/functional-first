@@ -240,11 +240,22 @@ Effective Language Level is read from the build target (`maven.compiler.release`
 | Effective level | record | sealed | switch patterns + exhaustiveness | How principle 4 lands |
 |---|:-:|:-:|:-:|---|
 | 8 / 11 | no | no | no | Immutability via Immutables / AutoValue / Lombok `@Value`. The **visitor pattern** is the only construction with compiler-checked exhaustiveness — add a case and every implementor fails to compile. |
-| 16 / 17 | yes | yes | no | `record` + `sealed interface` express the ADT; matching is an `instanceof` chain with `default -> throw`, exhaustiveness unchecked. |
+| 16 / 17 | yes | yes | no | `record` + `sealed interface` express the ADT; there is no `switch` form to reach for at all before JEP 441, so matching is an `instanceof` chain closed by `else { throw }`, exhaustiveness unchecked. |
 | 21+ | yes | yes | yes | `switch` patterns and record patterns, exhaustiveness checked by the compiler. |
 
 The Java 8 row is the one most often skipped. The visitor pattern is ugly, but without it a
 Java 8 project has no mechanical hold on principle 4 at all.
+
+This spec originally described the 16/17 cell's idiom as "an `instanceof` chain with
+`default -> throw`". **A `switch` cannot select on a `sealed` type at all before JEP 441
+landed in Java 21**, so that description is simply false — and false a second way, because it
+also conflates two different constructs: `default` is a `switch` arm, and the `instanceof`
+chain actually closes with `else`, which has no `default` of its own. Verified directly against
+`javac 17.0.12`: a `switch` over a sealed selector, in its simplest form
+(`switch (s) { default -> "no"; }`), fails to compile, with "patterns in switch statements are a
+preview feature and are disabled by default". What is true instead is what the corrected cell
+above says — matching at 16/17 is only ever an `instanceof` chain, closed by an `else` that
+throws — also verified directly against `javac 17`.
 
 ### 6.4 Python
 
@@ -297,12 +308,14 @@ a reader can point at.
 | 5 Errors | A `catch` that returns a normal value instead of rethrowing; a `catch` with an empty body |
 | 6 Dependencies | `Instant.now()`, `UUID.randomUUID()`, `new XxxClient()`, or a global singleton inside a function body |
 
-Signal 4 needs its scope stated precisely, because the same construct is correct in two of the
-three places it appears. A `default` branch is a violation **only** when the selector is a
-sealed hierarchy **and** the Effective Language Level is 21 or above — there it discards the
-compiler's exhaustiveness check, which is the entire reason for sealing the type. On 16/17 it
-is the prescribed idiom (§6.3), and over a non-sealed selector it is ordinary correct code at
-any version.
+Signal 4 needs its scope stated precisely, because the verdict is not the same at every
+Effective Language Level, and at one of them there is no such construct to judge in the first
+place (see the correction in §6.3). A `default` branch is a violation **only** when the
+selector is a sealed hierarchy **and** the Effective Language Level is 21 or above — there it
+discards the compiler's exhaustiveness check, which is the entire reason for sealing the type.
+On 16/17 no `switch` over a sealed selector exists to carry a `default` at all — matching there
+is an `instanceof` chain closed by `else` — and over a non-sealed selector a `default` branch
+is ordinary correct code at any version.
 
 ## 8. Artifacts and load timing
 

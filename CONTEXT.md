@@ -1,4 +1,4 @@
-# Functimize
+# Functional-First Glossary
 
 A cross-language guideline that biases architecture, planning, and implementation toward
 functional design. This glossary pins the vocabulary the guideline is built on — fuzzy terms
@@ -8,8 +8,8 @@ here cause the guideline to be applied at the wrong strength in the wrong places
 
 **Axis A — Principle Rigor**:
 How strictly the language-invariant structural principles are applied: pure decision logic,
-immutable data, errors as values, illegal states unrepresentable, explicit dependencies.
-Requires no library, only some way to express a sum type.
+decide/execute separation, immutable data, errors as values, illegal states unrepresentable,
+explicit dependencies. Requires no library, only some way to express a sum type.
 _Avoid_: aggressiveness, FP-ness, how functional
 
 **Axis B — Abstraction Weight**:
@@ -43,8 +43,8 @@ existing-codebase-consistency Deviation; adding a record or a sealed interface d
 _Avoid_: breaking change, invasive change
 
 **Stance**:
-A project's resolved position on Axis B — a level, plus a specific library where the level
-admits more than one. Resolved once per project and recorded, never re-derived.
+A project's resolved position on Axis B — recorded as one `Axis B:` line naming the machinery,
+plus a dated reason. Resolved once per project and recorded, never re-derived.
 _Avoid_: setting, config, preference
 
 **Taste Fork**:

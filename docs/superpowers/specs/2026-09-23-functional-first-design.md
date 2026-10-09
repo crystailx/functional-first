@@ -221,6 +221,18 @@ The payoff is maintenance. Ecosystem shifts touch `SKILL.md` only; language rele
 reference only. It also directly prevents the cargo-cult failure mode, because each reference
 states the idiomatic form outright and leaves no room to import Haskell vocabulary into Python.
 
+**A reference names another language only in a see-also pointer or a cross-language substitution
+table.** When explaining its own language's situation it may not, because references load one at a
+time and the reader has only the file in front of them. The way to tell the two apart is a removal
+test: delete the other language's name from the sentence. If the sentence still carries its
+information, the mention was additive and is fine; if it collapses, the foreign name was
+load-bearing and the sentence must be restated in language-neutral terms.
+
+This escaped review because the binding constraint was that references must not take a stance on
+which library to use, and reviewers checked exactly that. Naming a Scala library inside the Python
+reference is not a stance — it recommends nothing — so no constraint covered comprehensibility and
+nobody was looking for it.
+
 ### 6.2 Version axis
 
 Every idiom carries a minimum-version marker. This is general, not a Java special case —

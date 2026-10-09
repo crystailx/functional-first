@@ -3,7 +3,7 @@
 last-verified: 2026-09
 
 This reference covers capability and idiom for Python's native capability, the sole
-Axis-B option on this language line — there is no ZIO- or cats-effect-style shell layered
+Axis-B option on this language line — there is no effect runtime layered
 on top of it here, and no per-library section below, for the same reason as Java: there
 is no such library to describe. What has to be read before any of the capability below is
 trusted is a single fact stated first rather than last, because it governs everything

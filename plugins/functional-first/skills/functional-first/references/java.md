@@ -3,7 +3,7 @@
 last-verified: 2026-09
 
 This reference covers capability and idiom for Java's native capability, the sole Axis-B option
-on this language line — there is no ZIO- or cats-effect-style shell layered on top of it here,
+on this language line — there is no effect runtime layered on top of it here,
 and no per-library section below for that reason. What the rest of this file organizes by
 instead is effective language level: `record`, `sealed`, and switch pattern matching arrived
 across several JDK feature releases rather than together, so the same worked example is written

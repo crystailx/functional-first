@@ -224,9 +224,15 @@ states the idiomatic form outright and leaves no room to import Haskell vocabula
 **A reference names another language only in a see-also pointer or a cross-language substitution
 table.** When explaining its own language's situation it may not, because references load one at a
 time and the reader has only the file in front of them. The way to tell the two apart is a removal
-test: delete the other language's name from the sentence. If the sentence still carries its
-information, the mention was additive and is fine; if it collapses, the foreign name was
-load-bearing and the sentence must be restated in language-neutral terms.
+test, applied to the passage rather than to the single sentence: delete the other language's name.
+If the surrounding text still carries the information — because the fact being compared against is
+stated in place, or the file holding it is named — the mention was additive and is fine. If the
+meaning collapses because the foreign name was the only thing carrying it, restate it in
+language-neutral terms.
+
+The sentence-only reading of this test misfires, and did: a passage that names `scala-2.md`, states
+the Scala behaviour inline, and only then draws its contrast is self-sufficient, even though the
+word "Scala" cannot be deleted from one of its sentences.
 
 This escaped review because the binding constraint was that references must not take a stance on
 which library to use, and reviewers checked exactly that. Naming a Scala library inside the Python

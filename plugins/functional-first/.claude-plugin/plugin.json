@@ -1,7 +1,7 @@
 {
   "name": "functional-first",
   "description": "A cross-language guideline that biases architecture, planning, implementation, and library selection toward functional design.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "name": "CrystailX"
   },

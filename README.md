@@ -49,23 +49,24 @@ API; when writing an implementation plan; when choosing a library or framework; 
 implementing backend logic; or when reviewing code — applies functional structure in any
 language, resolves which effect machinery a project uses, and supplies per-language idiom."
 
-## Installing the snippet
+## Layer 1 arrives with the install
 
 This guideline is not a topic anyone raises on purpose — nobody asks for a "functional" order
 service, they ask for an order service, so nothing that depends on the user raising the subject
-can fire reliably. The snippet is how the guideline holds anyway: it carries the six principles
-in full, so they hold even when the skill never loads. The skill supplies depth on demand; the
-snippet supplies the guideline.
+can fire reliably. The plugin therefore ships a `SessionStart` hook that puts the six
+principles into context at `startup`, `clear`, and `compact`, so they hold
+even when the skill never loads. Installing the plugin is the whole story; there is nothing to paste. The skill
+supplies depth on demand; the hook supplies the guideline.
 
-| Adoption | Install into | Effect |
-|---|---|---|
-| Individual | `~/.claude/CLAUDE.md` | all of that user's projects |
-| Team | project `CLAUDE.md` | everyone on the repo |
+The hook reads `plugins/functional-first/skills/functional-first/snippets/claude-md.md` and
+emits it unchanged, so that file is the single source of the wording. If it cannot be read, the
+hook emits nothing.
 
-Team adoption puts the block below and the project's recorded Stance (next section) in the same
-file.
+Optionally, to edit the wording locally, paste the block into `~/.claude/CLAUDE.md` (all of your
+projects) or a project `CLAUDE.md` (everyone on the repo). Do this only if you want your own
+wording; the hook already supplies it.
 
-The block itself, verbatim, from
+The block, verbatim, from
 `plugins/functional-first/skills/functional-first/snippets/claude-md.md`:
 
 ```markdown

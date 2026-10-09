@@ -326,10 +326,11 @@ functimize/                                  local dir; published as functional-
 ├── docs/adr/                                decisions
 └── plugins/functional-first/
     ├── .claude-plugin/plugin.json
+    ├── hooks/hooks.json, session-start  SessionStart hook emitting the block
     └── skills/functional-first/
         ├── SKILL.md                         contract, greenfield gate, stance
         │                                    resolution incl. option sets, deviation
-        ├── snippets/claude-md.md            the installable always-on block
+        ├── snippets/claude-md.md            the always-on block, source for the hook
         └── references/
             ├── review-signals.md            the six failure signals
             ├── scala-3.md  scala-2.md
@@ -383,7 +384,7 @@ ask for an order service. Triggering therefore cannot depend on the subject comi
 rules out any mechanism keyed to the user mentioning functional design. The mechanisms below
 are layered by how reliably they fire.
 
-**Layer 1 — the `CLAUDE.md` block carries Axis A itself, not a pointer to it.** This is the
+**Layer 1 — the always-on block carries Axis A itself, not a pointer to it.** This is the
 only layer that fires unconditionally, because it is in context before anything is matched
 against anything else. The consequence is the one that matters: in a session where the skill
 never loads, the six principles are still present and the design still comes out functional.
@@ -426,18 +427,22 @@ small to read as design work. Offered, not required; out of scope for the first 
 
 Stated plainly rather than implied: **nothing makes a model do something every single time
 except putting it in context.** Layer 1 is a guarantee; layers 2 through 4 raise probability.
-A team that wants this guideline unconditionally installs the block — which is why the block
-is recommended rather than optional, even though the skill functions without it.
+Installing the plugin is what makes Layer 1 unconditional.
 
-The block ships as an installable snippet, and the adopter chooses where it goes:
+Layer 1 ships as a `SessionStart` hook in the plugin, matching `startup|clear|compact` and
+running synchronously, so the block is in context before the model acts. `compact` matters
+most: without it the principles vanish exactly when context has been compressed. The hook
+script does not restate the principles; it reads `snippets/claude-md.md`, the single source of
+truth, and emits it. If that file is unreadable it emits nothing rather than a partial block.
+Pasting the block into a `CLAUDE.md` remains available as an optional path for adopters who
+want to edit the wording locally.
 
-| Adoption | Install into | Effect |
-|---|---|---|
-| Individual | `~/.claude/CLAUDE.md` | all of that user's projects |
-| Team | project `CLAUDE.md` | everyone on the repo |
-
-Team adoption additionally puts the block and the recorded Stance in the same file, keeping a
-project's whole functional-first configuration in one place.
+**Correction.** This section originally designed Layer 1 as an installable snippet that the
+adopter pastes into `~/.claude/CLAUDE.md` or a project `CLAUDE.md`. That was a real flaw:
+`claude plugin install` touches no `CLAUDE.md`, so the one layer declared unconditional
+depended on a human remembering a manual step, and an adopter who skipped it silently lost the
+guarantee without knowing. It was replaced by the `SessionStart` hook above, so installing the
+plugin delivers Layer 1 with no further action.
 
 ## 10. Out of scope
 

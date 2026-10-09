@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# SessionStart hook: emit the Layer 1 block so it is in context without a manual paste.
+# The snippet file is the single source of truth. If it is unreadable, emit nothing.
+
+snippet="${CLAUDE_PLUGIN_ROOT}/skills/functional-first/snippets/claude-md.md"
+[ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && [ -s "$snippet" ] || exit 0
+
+s=$(cat "$snippet") || exit 0
+s="${s//\\/\\\\}"
+s="${s//\"/\\\"}"
+s="${s//$'\n'/\\n}"
+s="${s//$'\r'/\\r}"
+s="${s//$'\t'/\\t}"
+
+printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}\n' "$s"
